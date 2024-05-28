@@ -15,31 +15,15 @@ class SongFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentSongBinding.inflate(inflater, container, false)
-        setupToggleListeners()
-        return binding.root
-    }
-
-    private fun setupToggleListeners() {
-
         binding.songMixoffTg.setOnClickListener {
-            toggleMixViews()
+            binding.songMixoffTg.visibility = View.GONE
+            binding.songMixonTg.visibility = View.VISIBLE
         }
-
 
         binding.songMixonTg.setOnClickListener {
-            toggleMixViews()
-        }
-    }
-
-    private fun toggleMixViews() {
-        if (binding.songMixonTg.visibility == View.GONE) {
-
-            binding.songMixonTg.visibility = View.VISIBLE
-            binding.songMixoffTg.visibility = View.GONE
-        } else {
-
-            binding.songMixonTg.visibility = View.GONE
             binding.songMixoffTg.visibility = View.VISIBLE
+            binding.songMixonTg.visibility = View.GONE
         }
-    }
-}
+
+        return binding.root
+    }}
