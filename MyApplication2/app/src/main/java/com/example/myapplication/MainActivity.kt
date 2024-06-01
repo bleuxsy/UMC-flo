@@ -3,18 +3,25 @@ package com.example.myapplication
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.chrome.umcflo.SongDatabase
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class MainActivity : AppCompatActivity() {
+public class MainActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityMainBinding
     lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
+
     val songs = arrayListOf<Song>()
-    lateinit var songDB: SongDatabase
+    lateinit var songDB:SongDatabase
     var nowPos = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,18 +31,27 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        songDB = SongDatabase.getInstance(this)!! // 데이터베이스 인스턴스 초기화
         inputDummySongs()
         initPlayList()
         initBottomNavigation()
 
+        activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val data = result.data
+                if (data != null) {
+                    val message = data.getStringExtra("message")
+                    Log.d("message", message!!)
+                    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
         binding.mainPlayerCl.setOnClickListener {
             val editor = getSharedPreferences("song", MODE_PRIVATE).edit()
             editor.putInt("songId", songs[nowPos].id)
             editor.apply()
 
             val intent = Intent(this, SongActivity::class.java)
-            startActivity(intent)
+            activityResultLauncher.launch(intent)
         }
     }
 
@@ -59,14 +75,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initPlayList() {
+        songDB = SongDatabase.getInstance(this)!!
         songs.addAll(songDB.songDao().getSongs())
     }
 
     private fun setMiniPlayer(song: Song) {
         binding.mainMiniplayerTitleTv.text = song.title
         binding.mainMiniplayerSingerTv.text = song.singer
+        Log.d("songInfo", song.toString())
         val sharedPreferences = getSharedPreferences("song", MODE_PRIVATE)
         val second = sharedPreferences.getInt("second", 0)
+        Log.d("spfSecond",second.toString())
         binding.mainMiniplayerProgressSb.progress = (song.second * 100000) / song.playTime
     }
 
@@ -101,19 +120,20 @@ class MainActivity : AppCompatActivity() {
                         .commitAllowingStateLoss()
                     true
                 }
-                else -> false
+                else->false
             }
+
         }
     }
+
     fun updateMainPlayerCl(album: Album) {
         binding.mainMiniplayerTitleTv.text = album.title
         binding.mainMiniplayerSingerTv.text = album.singer
         binding.mainMiniplayerProgressSb.progress = 0
-
     }
 
-
-    private fun inputDummySongs() {
+    private  fun inputDummySongs() {
+        val songDB = SongDatabase.getInstance(this)!!
         val songs = songDB.songDao().getSongs()
 
         if (songs.isNotEmpty()) return
@@ -159,6 +179,7 @@ class MainActivity : AppCompatActivity() {
                 2
             )
         )
+
         songDB.songDao().insert(
             Song(
                 "Next Level",

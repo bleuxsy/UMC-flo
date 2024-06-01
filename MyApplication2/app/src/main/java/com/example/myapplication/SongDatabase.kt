@@ -1,42 +1,34 @@
-package com.example.myapplication
+package com.chrome.umcflo
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
+import com.example.myapplication.Album
+import com.example.myapplication.AlbumDao
+import com.example.myapplication.Song
+import com.example.myapplication.SongDao
 
-@Database(entities = [Song::class, Album::class], version = 2, exportSchema = false)
-abstract class SongDatabase : RoomDatabase() {
-    abstract fun songDao(): SongDao
+@Database(entities = [Song::class, Album::class], version = 1)
+abstract class SongDatabase: RoomDatabase() {
     abstract fun albumDao(): AlbumDao
-
+    abstract fun songDao(): SongDao
     companion object {
-        @Volatile
         private var instance: SongDatabase? = null
 
-        fun getInstance(context: Context): SongDatabase {
-            return instance ?: synchronized(this) {
-                instance ?: buildDatabase(context).also { instance = it }
+        @Synchronized
+        fun getInstance(context: Context): SongDatabase? {
+            if (instance == null) {
+                synchronized(SongDatabase::class){
+                    instance = Room.databaseBuilder(
+                        context.applicationContext,
+                        SongDatabase::class.java,
+                        "song-databases" // 다른 데이터 베이스랑 이름이 겹치지 않도록 주의
+                    ).allowMainThreadQueries().build() // 편의상 메인 쓰레드에서 처리하게 한다.
+                }
             }
-        }
 
-        private fun buildDatabase(context: Context) =
-            Room.databaseBuilder(
-                context.applicationContext,
-                SongDatabase::class.java,
-                "song-database"
-            )
-                .addMigrations(MIGRATION_1_2)
-                .fallbackToDestructiveMigration() // 파괴적 마이그레이션을 사용할 경우 이 줄을 추가
-                .build()
-
-        private val MIGRATION_1_2 = object : Migration(1, 2) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                // 예: 새로운 열 추가
-                // database.execSQL("ALTER TABLE SongTable ADD COLUMN newColumn TEXT")
-            }
+            return instance
         }
     }
 }

@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 
-@Entity(tableName = "SongTable")
+@Entity(tableName = "Songtable")
 data class Song(
     val title : String ="",
     val singer : String ="",

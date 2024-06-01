@@ -6,29 +6,20 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.databinding.ItemAlbumBinding
 
 class AlbumRVAdapter(private val  albumList : ArrayList<Album>):RecyclerView.Adapter<AlbumRVAdapter.ViewHolder>(){
-    interface MyItemCLickListener{
-        fun onItemClick(album: Album)
-        fun onRemoveAlbum(position:Int)
-        fun onPlayAlbum(album: Album)
-    }
 
     interface CommunicationInterface {
         fun sendData(album: Album)
     }
 
-    private lateinit var mItemClickListener : MyItemCLickListener
-    fun setMyItemClickListener(itemCLickListener: MyItemCLickListener){
-        mItemClickListener = itemCLickListener
-    }
 
-    fun addItem(album: Album){
-        albumList.add(album)
-        notifyDataSetChanged()
-    }
-    fun removeItem(position : Int){
-        albumList.removeAt(position)
-        notifyDataSetChanged()
-    }
+//    fun addItem(album: Album){
+//        albumList.add(album)
+//        notifyDataSetChanged()
+//    }
+//    fun removeItem(position : Int){
+//        albumList.removeAt(position)
+//        notifyDataSetChanged()
+//    }
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): AlbumRVAdapter.ViewHolder {
         val binding : ItemAlbumBinding = ItemAlbumBinding.inflate(LayoutInflater.from(viewGroup.context), viewGroup , false)
 
@@ -41,7 +32,7 @@ class AlbumRVAdapter(private val  albumList : ArrayList<Album>):RecyclerView.Ada
         holder.itemView.setOnClickListener{ mItemClickListener.onItemClick(albumList[position]) }
       //  holder.binding.itemAlbumTitleTv.setOnClickListener({mItemClickListener.onRemoveAlbum(position)})
         holder.binding.itemAlbumPlayImgIv.setOnClickListener {
-            mItemClickListener.onItemClick(albumList[position])
+            mItemClickListener.onPlayAlbum(albumList[position])
         }
     }
 
@@ -56,5 +47,17 @@ class AlbumRVAdapter(private val  albumList : ArrayList<Album>):RecyclerView.Ada
             binding.itemAlbumSingerTv.text = album.singer
             binding.itemAlbumCoverImgIv.setImageResource(album.coverImg!!)
         }
+
     }
+    interface MyItemCLickListener{
+        fun onItemClick(album: Album)
+        fun onPlayAlbum(album: Album)
+    }
+
+
+    private lateinit var mItemClickListener : MyItemCLickListener
+    fun setMyItemClickListener(itemCLickListener: MyItemCLickListener){
+        this.mItemClickListener = itemCLickListener
+    }
+
 }

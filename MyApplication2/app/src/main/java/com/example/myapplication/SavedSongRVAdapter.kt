@@ -12,15 +12,7 @@ class SavedSongRVAdapter : RecyclerView.Adapter<SavedSongRVAdapter.ViewHolder>()
     private val switchStatus = SparseBooleanArray()
     private val songs = ArrayList<Song>()
 
-    interface MyItemClickListener {
-        fun onRemoveSong(songId: Int)
-    }
 
-    private lateinit var mItemClickListener: MyItemClickListener
-
-    fun setMyItemClickListener(itemClickListener: MyItemClickListener) {
-        mItemClickListener = itemClickListener
-    }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): SavedSongRVAdapter.ViewHolder {
         val binding: ItemSongBinding = ItemSongBinding.inflate(LayoutInflater.from(viewGroup.context), viewGroup, false)
@@ -30,7 +22,7 @@ class SavedSongRVAdapter : RecyclerView.Adapter<SavedSongRVAdapter.ViewHolder>()
     override fun onBindViewHolder(holder: SavedSongRVAdapter.ViewHolder, position: Int) {
         holder.bind(songs[position])
         holder.binding.itemSongMoreIv.setOnClickListener {
-            mItemClickListener.onRemoveSong(songs[position].id)
+            mItemClickListener.onRemoveAlbum(songs[position].id)
             removeSong(position)
         }
 
@@ -47,7 +39,22 @@ class SavedSongRVAdapter : RecyclerView.Adapter<SavedSongRVAdapter.ViewHolder>()
     }
 
     override fun getItemCount(): Int = songs.size
+    inner class ViewHolder(val binding: ItemSongBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(song: Song) {
+            binding.itemSongTitleTv.text = song.title
+            binding.itemSongSingerTv.text = song.singer
+            binding.itemSongImgIv.setImageResource(song.coverImg!!)
+        }
+    }
+    interface MyItemClickListener {
+        fun onRemoveAlbum(songId: Int)
+    }
 
+    private lateinit var mItemClickListener: MyItemClickListener
+
+    fun setMyItemClickListener(itemClickListener: MyItemClickListener) {
+        this.mItemClickListener = itemClickListener
+    }
     @SuppressLint("NotifyDataSetChanged")
     fun addSongs(songs: ArrayList<Song>) {
         this.songs.clear()
@@ -61,11 +68,5 @@ class SavedSongRVAdapter : RecyclerView.Adapter<SavedSongRVAdapter.ViewHolder>()
         notifyDataSetChanged()
     }
 
-    inner class ViewHolder(val binding: ItemSongBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(song: Song) {
-            binding.itemSongTitleTv.text = song.title
-            binding.itemSongSingerTv.text = song.singer
-            binding.itemSongImgIv.setImageResource(song.coverImg!!)
-        }
-    }
+
 }
