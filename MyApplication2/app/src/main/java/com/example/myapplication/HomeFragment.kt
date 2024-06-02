@@ -19,9 +19,11 @@ class HomeFragment : Fragment() , AlbumRVAdapter.CommunicationInterface {
 
     lateinit var binding: FragmentHomeBinding
     private var albumDatas = ArrayList<Album>()
-    private  lateinit var songDB : SongDatabase
+
     private val timer = Timer()
     private val handler =Handler(Looper.getMainLooper())
+
+    private  lateinit var songDB : SongDatabase
 
     override fun sendData(album: Album) { // MainActivity의 UI를 업데이트하기 위해 사용하는 메서드
         if (activity is MainActivity) {
